@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean toRecord = false;
 
+
     // One second.  We use Mickey Mouse time.
     private static final int ONE_SECOND_IN_MILLIS = 100;
 
@@ -54,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
         toRecord = true; //Becomes true s.t. immediately after, records a time
         displayTime();
     };
-
+    // This button and the next to deal with clicks on the "recent" buttons,
+    // and starts the timer with the displayed times.
     public void onClickR1(View v) {
         seconds = recSeconds[0];
         displayTime();
@@ -74,6 +76,33 @@ public class MainActivity extends AppCompatActivity {
         seconds = 0;
         cancelTimer();
         displayTime();
+    }
+    // This function is called every time someone presses start and had
+    // immediately before pressed + or -, to save this time as a recent
+    // time (if it's not there).
+    public void saveRecentTimes(int m, int s){
+        boolean doesContain = false;
+        for (int i = 0; i <= 2; i++) {
+            if (seconds == recSeconds[i])
+                doesContain = true;
+        }
+        if (doesContain == false) {
+            recSeconds[startCount % 3] = seconds;
+            if (startCount % 3 == 0) {
+                TextView r1 = (TextView) findViewById(R.id.button_r1);
+                r1.setText(String.format("%d:%02d", m, s));
+                displayTime();
+            }
+            if (startCount % 3 == 1) {
+                TextView r2 = (TextView) findViewById(R.id.button_r2);
+                r2.setText(String.format("%d:%02d", m, s));
+            }
+            if (startCount % 3 == 2) {
+                TextView r3 = (TextView) findViewById(R.id.button_r3);
+                r3.setText(String.format("%d:%02d", m, s));
+            }
+            startCount++;
+        }
     }
 
     public void onClickStart(View v) {
@@ -99,33 +128,14 @@ public class MainActivity extends AppCompatActivity {
             };
             timer.start();
 
-            // In progress
             int m = seconds / 60;
             int s = seconds % 60;
             Log.d(LOG_TAG, "trying to click => " + m + ":" + s);
-            boolean doesContain = false;
-            for (int i = 0; i <= 2; i++){
-                if(seconds == recSeconds[i])
-                    doesContain = true;
+            //Extra credit: only activates immediately after + or -
+            if (toRecord==true) {
+                saveRecentTimes(m,s);
             }
-            if (doesContain == false) {
-                recSeconds[startCount % 3] = seconds;
-                if (startCount % 3 == 0) {
-                    TextView r1 = (TextView) findViewById(R.id.button_r1);
-                    r1.setText(String.format("%d:%02d", m, s));
-                    displayTime();
-                }
-                if (startCount % 3 == 1) {
-                    TextView r2 = (TextView) findViewById(R.id.button_r2);
-                    r2.setText(String.format("%d:%02d", m, s));
-                }
-                if (startCount % 3 == 2) {
-                    TextView r3 = (TextView) findViewById(R.id.button_r3);
-                    r3.setText(String.format("%d:%02d", m, s));
-                }
-                startCount++;
-            }
-            // In progress
+            toRecord = false;
 
         }
     }
